@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+
+{% load staticfiles %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <!-- saved from url=(0062)https://www.w3schools.com/w3css/tryw3css_templates_website.htm -->
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">.gm-style .gm-style-mtc label,.gm-style .gm-style-mtc div{font-weight:400}
+</style><link type="text/css" rel="stylesheet" href={%  static 'W3.CSS Template_files/css' %}><style type="text/css">.gm-style .gm-style-cc span,.gm-style .gm-style-cc a,.gm-style .gm-style-mtc div{font-size:10px}
+</style><style type="text/css">@media print {  .gm-style .gmnoprint, .gmnoprint {    display:none  }}@media screen {  .gm-style .gmnoscreen, .gmnoscreen {    display:none  }}</style><style type="text/css">.gm-style-pbc{transition:opacity ease-in-out;background-color:rgba(0,0,0,0.45);text-align:center}.gm-style-pbt{font-size:22px;color:white;font-family:Roboto,Arial,sans-serif;position:relative;margin:0;top:50%;-webkit-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%)}
+</style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href={%  static 'W3.CSS Template_files/w3.css' %}>
+<link rel="stylesheet" href={%  static 'W3.CSS Template_files/w3-theme-black.css' %}>
+<link rel="stylesheet" href={%  static 'W3.CSS Template_files/font-awesome.min.css' %}>
+<script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/common.js.download' %}></script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/util.js.download' %}></script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/map.js.download' %}></script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/marker.js.download' %}></script><style type="text/css">.gm-style {
+        font: 400 11px Roboto, Arial, sans-serif;
+        text-decoration: none;
+      }
+      .gm-style img { max-width: none; }</style><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/onion.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/controls.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/stats.js.download' %}></script></head><body id="myPage">
+
+<!-- Contact Container -->
+{#TODO: this neeeds to be changes from a constant height#}
+<div style="height: 500px" class="w3-container w3-padding-64 w3-theme-l5" id="contact">
+    <div style="height: 50px"></div>
+      <form method="post" class="w3-container w3-card-4 w3-display-top w3-padding-16 w3-white">
+      <a class="btn btn-default" href="{% url 'case_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+      {% csrf_token %}
+          <label><b>Title</b></label>
+                <div class="w3-section">
+                    {{ case.title}}
+                </div>
+                    <label><b>Summary</b></label>
+                <div class="w3-section">
+                    {{ case.summary }}
+                </div>
+            </form>
+        </div>
+
+{% endblock %}

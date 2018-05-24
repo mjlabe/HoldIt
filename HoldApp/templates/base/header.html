@@ -1,0 +1,68 @@
+{% block header %}
+
+{% load staticfiles %}
+
+{#TODO: change header based on group logged in#}
+<!-- saved from url=(0062)https://www.w3schools.com/w3css/tryw3css_templates_website.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">.gm-style .gm-style-mtc label,.gm-style .gm-style-mtc div{font-weight:400}
+</style><link type="text/css" rel="stylesheet" href={%  static 'W3.CSS Template_files/css' %}><style type="text/css">.gm-style .gm-style-cc span,.gm-style .gm-style-cc a,.gm-style .gm-style-mtc div{font-size:10px}
+</style><style type="text/css">@media print {  .gm-style .gmnoprint, .gmnoprint {    display:none  }}@media screen {  .gm-style .gmnoscreen, .gmnoscreen {    display:none  }}</style><style type="text/css">.gm-style-pbc{transition:opacity ease-in-out;background-color:rgba(0,0,0,0.45);text-align:center}.gm-style-pbt{font-size:22px;color:white;font-family:Roboto,Arial,sans-serif;position:relative;margin:0;top:50%;-webkit-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%)}
+</style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href={%  static 'W3.CSS Template_files/w3.css' %}>
+<link rel="stylesheet" href={%  static 'W3.CSS Template_files/w3-theme-black.css' %}>
+<link rel="stylesheet" href={%  static 'W3.CSS Template_files/font-awesome.min.css' %}>
+<script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/common.js.download' %}></script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/util.js.download' %}></script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/map.js.download' %}></script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/marker.js.download' %}></script><style type="text/css">.gm-style {
+        font: 400 11px Roboto, Arial, sans-serif;
+        text-decoration: none;
+      }
+      .gm-style venv\Scripts\activate.batimg { max-width: none; }</style><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/onion.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/controls.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/stats.js.download' %}></script></head><body id="myPage">
+
+<!-- Sidebar on click -->
+<nav class="w3-sidebar w3-bar-block w3-white w3-card w3-animate-left w3-xxlarge" style="display:none;z-index:2" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-display-topright w3-text-teal">Close
+    <i class="fa fa-remove"></i>
+  </a>
+  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link 1</a>
+  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link 2</a>
+  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link 3</a>
+  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link 4</a>
+  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link 5</a>
+</nav>
+
+<!-- Navbar -->
+<div class="w3-top">
+ <div class="w3-bar w3-theme-d2 w3python-left-align">
+  <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-hover-white w3-theme-d2" href="javascript:void(0);" onclick="openNav()"><i class="fa fa-bars"></i></a>
+  <a href="{% url 'index' %}" class="w3-bar-item w3-button w3-dark-gray"><i class="fa fa-home w3-margin-right"></i>Hold-It</a>
+  <a href="{% url 'case_list' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Cases</a>
+{#  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#pricing" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Price</a>#}
+{#  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>#}
+    <div class="w3-dropdown-hover w3-hide-small">
+    <button class="w3-button" title="Notifications">Dropdown <i class="fa fa-caret-down"></i></button>
+    <div class="w3-dropdown-content w3-card-4 w3-bar-block">
+      <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link</a>
+      <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link</a>
+      <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Link</a>
+    </div>
+  </div>
+  <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button w3-hide-small w3-right w3-hover-teal" title="Search"><i class="fa fa-search"></i></a>
+  {% if user.is_authenticated %}
+    <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-right w3-hover-white">Logout</a>
+  {% else %}
+    <a href="{% url 'login' %}" class="w3-bar-item w3-button w3-hide-small w3-right w3-hover-white">Login</a>
+  {% endif %}
+ </div>
+
+  <!-- Navbar on small screens -->
+  <div id="navDemo" class="w3-bar-block w3-theme-d2 w3-hide w3-hide-large w3-hide-medium">
+    <a href="{% url 'login' %}" class="w3-bar-item w3-button">Hold-It</a>
+    <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#work" class="w3-bar-item w3-button">Work</a>
+    <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#pricing" class="w3-bar-item w3-button">Price</a>
+    <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#contact" class="w3-bar-item w3-button">Contact</a>
+    <a href="https://www.w3schools.com/w3css/tryw3css_templates_website.htm#" class="w3-bar-item w3-button">Search</a>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% load staticfiles %}
+{#TODO: clean up html and css. it's very messy#}
+<!doctype html>
+<html lang="en">
+
+        {% block header %}
+            {% include "base/header.html" %}
+        {% endblock %}
+
+
+<link rel="stylesheet" href={%  static 'css/sticky-footer.css' %}>
+<div class="wrapper">
+        
+        {% block content %}
+        {% endblock %}
+
+      <div class="push"></div>
+</div>
+
+
+        {% block footer %}
+            {% include "base/footer.html" %}
+        {% endblock %}
+
+</html>
