@@ -1,5 +1,5 @@
 from django import forms
-from HoldApp.models import Report, Case, HModelData, HModelStuff, GroupRequest, DModelF, DModelD
+from HoldApp.models import Report, Case, HModelData, HModelStuff, GroupRequest, DModelF, DModelD, Packet
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -7,6 +7,12 @@ from django.contrib.auth.forms import UserCreationForm
 class CaseForm(forms.ModelForm):
     class Meta:
         model = Case
+        fields = ('title', 'summary', 'file1')
+
+
+class PacketForm(forms.ModelForm):
+    class Meta:
+        model = Packet
         fields = ('title', 'summary')
 
 

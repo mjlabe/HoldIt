@@ -13,10 +13,31 @@ class DateCreateModMixin(models.Model):
     mod_date = models.DateTimeField(blank=True, null=True)
 
 
+class Packet(DateCreateModMixin):
+    """This model common to every type of device. It includes common things like, title, summary, device type, etc."""
+    title = models.CharField(max_length=100)
+    summary = models.TextField(max_length=100000, blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+
 class Case(DateCreateModMixin):
     """This model common to every type of device. It includes common things like, title, summary, device type, etc."""
     title = models.CharField(max_length=100)
     summary = models.TextField(max_length=100000, blank=True, null=True)
+    file1 = models.FileField(max_length=100)
+    file2 = models.FileField(max_length=100, null=True, blank=True)
+    STATUS_CHOICES = (
+        ('N', 'New'),
+        ('P', 'In Progress'),
+        ('C', 'Complete')
+    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='N')
+    packet = models.ForeignKey(Packet, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.title
 
 
 class Report(DateCreateModMixin):
@@ -26,12 +47,14 @@ class Report(DateCreateModMixin):
 
 class CaseH(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    packet = models.ForeignKey(Packet, on_delete=models.CASCADE)
     hmodel = models.OneToOneField(HModel, on_delete=models.CASCADE)
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class CaseD(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    packet = models.ForeignKey(Packet, on_delete=models.CASCADE)
     dmodel = models.OneToOneField(DModel, on_delete=models.CASCADE)
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True)
 

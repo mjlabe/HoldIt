@@ -5,6 +5,8 @@ from django.urls import path, include
 
 urlpatterns = [
     url(r'^case/new/H$', views_contrib.new_case, name='new_case'),
+    url(r'^packet/new/$', views_contrib.new_packet, name='new_packet'),
+    url(r'^packet/(?P<pk>\d+)/edit/$', views_contrib.edit_packet, name='edit_packet'),
     url(r'^case/new/D$', views_contrib.new_Dcase, name='new_Dcase'),
     url(r'^$', views_public.index, name='index'),
     url(r'^$', views_public.header, name='header'),

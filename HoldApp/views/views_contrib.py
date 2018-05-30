@@ -1,7 +1,7 @@
-from HoldApp.forms import ReportForm, DFormD, DFormF, HFormData, HFormStuff, CaseForm
+from HoldApp.forms import ReportForm, DFormD, DFormF, HFormData, HFormStuff, CaseForm, PacketForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
-from HoldApp.models import DModel, DModelF, DModelD, Report, HModelData, HModelStuff, CaseD, CaseH, HModel, Case
+from HoldApp.models import DModel, DModelF, DModelD, Report, HModelData, HModelStuff, CaseD, CaseH, HModel, Case, Packet
 from django.utils import timezone
 
 
@@ -10,6 +10,80 @@ def is_contributor(user):
 
     return user.groups.filter(name='Contributor').exists() | user.groups.filter(name='Worker').exists() | \
            user.groups.filter(name='Admin').exists()
+
+
+def get_cases(report):
+    """Get all related cases to packet"""
+
+    cases = report.cased_set() + report.caseh_set()
+
+    return cases
+
+
+# TODO: use middleware instead of decorators
+@user_passes_test(is_contributor)
+def new_packet(request):
+    """Display the New Report form.
+
+    This view combines the Report model and the corresponding data model. This needs to be made into an abstract class
+    that can be implemented by ths specific views of different case types.
+    """
+
+    # TODO: make this an abstract class to handle every type of report
+    if request.method == "POST":
+        case_form = CaseForm(request.POST)
+        packet_form = PacketForm(request.POST)
+        report_form = ReportForm(request.POST)
+
+        if report_form.is_valid() and packet_form.is_valid() and case_form.is_valid():
+            case_form.save()
+            packet = packet_form.save()
+
+            # TODO: How to save relationship?
+
+            return redirect('edit_packet', pk=packet.pk)
+
+    else:
+        case_form = CaseForm()
+        packet_form = PacketForm()
+        report_form = ReportForm()
+
+    return render(request, "contributor/new_packet.html", {'case_form': case_form, 'report_form': report_form,
+                                                           'packet_form': packet_form})
+
+
+def edit_packet(request, pk):
+    """Display the New Report form.
+
+    This view combines the Report model and the corresponding data model. This needs to be made into an abstract class
+    that can be implemented by ths specific views of different case types.
+    """
+
+    packet = get_object_or_404(Packet, pk=pk)
+    cases = get_cases(packet)
+
+    # TODO: make this an abstract class to handle every type of report
+    if request.method == "POST":
+        case_form = CaseForm(request.POST)
+        packet_form = PacketForm(request.POST)
+        report_form = ReportForm(request.POST)
+
+        if report_form.is_valid() and case_form.is_valid() and packet_form.is_valid():
+
+            packet_form.save()
+
+            for case in cases:
+                case.save()
+
+            return redirect('edit_packet')
+
+    else:
+        case_form = CaseForm()
+        packet_form = PacketForm()
+        report_form = ReportForm()
+
+    return render(request, "contributor/new_packet.html", {'case_form': case_form, 'report_form': report_form,
+                                                           'packet_form': packet_form})
 
 
 # TODO: use middleware instead of decorators
