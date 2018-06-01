@@ -69,3 +69,8 @@ class GroupRequest(DateCreateModMixin):
         ('C', 'Contributor')
     )
     group = models.CharField(max_length=1, choices=GROUP_CHOICES, default='U')
+
+
+class MiscFiles(models.Model):
+    file = models.FileField()
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
