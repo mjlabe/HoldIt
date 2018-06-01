@@ -17,8 +17,10 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url
 from django.conf.urls import include
+from controlcenter.views import controlcenter
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'', include('HoldApp.urls')),
+    path('admin/dashboard/', controlcenter.urls),
 ]

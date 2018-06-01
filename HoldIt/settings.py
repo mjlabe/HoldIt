@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'HoldApp',
     'Middleware',
+    'controlcenter',
 ]
 
 MIDDLEWARE = [
@@ -132,4 +133,9 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_EXEMPT_URLS = (
     r'^account/logout/$',
     r'^account/signup/$',
+)
+
+CONTROLCENTER_DASHBOARDS = (
+    ('mydash', 'HoldIt.Dashboard.dashboards.MyDashboard'),
+
 )

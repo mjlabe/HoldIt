@@ -2,3 +2,6 @@ Django==2.0.4
 django-widget-tweaks==1.4.2
 pyodbc==4.0.23
 pytz==2018.4
+django-controlcenter==0.2.6
+# TODO: review django-pkgconf and all other libraries here
+django-pkgconf==0.3.0
