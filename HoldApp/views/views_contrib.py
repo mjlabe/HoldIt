@@ -129,15 +129,34 @@ def new_case(request):
 @user_passes_test(is_contributor)
 def case_edit(request, pk):
     case = get_object_or_404(Case, pk=pk)
-    report = CaseH.objects.get(case=case).report
-    data = CaseH.objects.get(case=case).hmodel.data
-    stuff = CaseH.objects.get(case=case).hmodel.stuff
+    try:
+        report = CaseH.objects.get(case=case).report
+    finally:
+        pass
+
+    if case.type == 'HType':
+        try:
+            data = CaseH.objects.get(case=case).hmodel.data
+            stuff = CaseH.objects.get(case=case).hmodel.stuff
+
+        finally:
+            pass
 
     if request.method == "POST":
         case_form = CaseForm(request.POST, instance=case)
-        report_form = ReportForm(request.POST, instance=report)
-        data_form = HFormData(request.POST, instance=data)
-        stuff_form = HFormStuff(request.POST, instance=stuff)
+
+        try:
+            report_form = ReportForm(request.POST, instance=report)
+        finally:
+            pass
+
+        if case.type == 'HType':
+            try:
+                data_form = HFormData(request.POST, instance=data)
+                stuff_form = HFormStuff(request.POST, instance=stuff)
+
+            finally:
+                pass
 
         if case_form.is_valid() and report_form.is_valid() and data_form.is_valid() and stuff_form.is_valid():
             case.mod_date = timezone.now

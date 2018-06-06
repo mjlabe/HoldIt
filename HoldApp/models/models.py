@@ -17,6 +17,7 @@ class Packet(DateCreateModMixin):
     """This model common to every type of device. It includes common things like, title, summary, device type, etc."""
     title = models.CharField(max_length=100)
     summary = models.TextField(max_length=100000, blank=True, null=True)
+    assignedUser = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
@@ -35,6 +36,12 @@ class Case(DateCreateModMixin):
     )
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='N')
     packet = models.ForeignKey(Packet, on_delete=models.CASCADE, null=True, blank=True)
+    TYPE_CHOICES = (
+        ('H', 'HType'),
+        ('D', 'DType'),
+        ('C', 'CType')
+    )
+    type = models.CharField(max_length=1, choices=TYPE_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return self.title

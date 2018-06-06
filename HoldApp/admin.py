@@ -18,14 +18,12 @@ class CaseInline(admin.StackedInline):
 
 @admin.register(Packet)
 class PacketAdmin(admin.ModelAdmin):
-    list_display = ('title', 'summary', 'created_date', 'mod_date')
+    list_display = ('title', 'summary', 'assignedUser', 'created_date', 'mod_date')
     inlines = [CaseInline]
     list_filter = ('created_date', 'mod_date')
+    list_editable = ('assignedUser',)
     search_fields = ('title', 'summary',)
-    advanced_filter_fields = (
-        'title', 'summary', 'created_date', 'mod_date')
-        # even use related fields as lookup fields
-        # 'country__name', 'posts__title', 'comments__content')
+
 
 
 @admin.register(Case)
@@ -34,8 +32,3 @@ class CaseAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_date', 'mod_date')
     list_editable = ('packet',)
     search_fields = ('title', 'summary', 'status',)
-    advanced_filter_fields = (
-        'title', 'packet', 'status', 'created_date', 'mod_date')
-        # even use related fields as lookup fields
-        # 'country__name', 'posts__title', 'comments__content')
-
