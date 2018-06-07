@@ -22,8 +22,11 @@ def case_list(request):
     return render(request, 'user/report_list.html', {'cases': cases})
 
 
+# TODO: create specific classes for each case type and the view logic to decide which is used
 class CaseView(View):
+    """Display Case details.
 
+    This class can be used by specific case types to inherit Case details."""
     @method_decorator(user_passes_test(is_user))
     def dispatch(self, request, *args, **kwargs):
         """Display the detailed view for a Report"""
