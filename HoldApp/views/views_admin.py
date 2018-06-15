@@ -56,6 +56,7 @@ def metrics(request):
             ['Month', 'Queue', 'New', 'In Progress', 'Complete'],
         ]
 
+        #loop through each month in the range
         for m in range(start.month, end.month):
 
             start = start.replace(month=m)
