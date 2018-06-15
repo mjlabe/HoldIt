@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'HoldApp',
     'Middleware',
     'controlcenter',
+    'graphos',
 ]
 
 MIDDLEWARE = [

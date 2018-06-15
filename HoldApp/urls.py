@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from HoldApp.views import views_public, views_user, views_contrib, OrderListJson, views_worker
+from HoldApp.views import views_public, views_user, views_contrib, OrderListJson, views_worker, views_admin
 from django.urls import path, include
 from django.contrib.auth.decorators import login_required
 from HoldApp.views.views_user import CaseView
@@ -26,6 +26,6 @@ urlpatterns = [
     url(r'^case/(?P<pk>\d+)/edit/$', views_contrib.case_edit, name='case_edit'),
     url(r'^my/datatable/data/$', login_required(OrderListJson.as_view()), name='order_list_json'),
     # path('about/', CaseView.as_view(greeting="G'day")),
-
+    url(r'^metrics/$', views_admin.metrics, name='metrics'),
 
 ]

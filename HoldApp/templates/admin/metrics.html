@@ -25,25 +25,20 @@
 
 <!-- Contact Container -->
 {#TODO: this neeeds to be changes from a constant height#}
-<div style="height: 500px" class="w3-container w3-padding-64 w3-theme-l5" id="contact">
-    <div style="height: 50px"></div>
-      <form method="post" class="w3-container w3-card-4 w3-display-top w3-padding-16 w3-white">
-      {% csrf_token %}
-          <label><b>Title</b></label>
-          <a class="btn btn-default" href="{% url 'case_edit' pk=case.pk %}"><span class="fa fa-pencil-square-o" style="font-size:2em; float: right"></span></a>
+<script type="text/javascript" src={% static 'googleCharts/jsapi' %}></script>
+<script type="text/javascript" src={%  static 'googleCharts/loader.js' %}></script>
+<script type="text/javascript">
+          var options = {
+        width: 600,
+        height: 400,
+        legend: { position: 'top', maxLines: 3 },
+        bar: { groupWidth: '75%' },
+        isStacked: true
+      };
 
-                <div class="w3-section">
-                    {{ case.title}}
-                </div>
-                    <label><b>Summary</b></label>
-                <div class="w3-section">
-                    {{ case.summary }}
-                </div>
-                <label><b>Type</b></label>
-                <div class="w3-section">
-                    {{ case.type }}
-                </div>
-            </form>
-        </div>
+    google.load("visualization", "1", {packages:["corechart"]});
+</script>
+
+{{ chart.as_html }}
 
 {% endblock %}

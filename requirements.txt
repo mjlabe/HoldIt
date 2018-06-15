@@ -5,3 +5,4 @@ pytz==2018.4
 django-controlcenter==0.2.6
 # TODO: review django-pkgconf and all other libraries here
 django-pkgconf==0.3.0
+django-graphos==0.3.41

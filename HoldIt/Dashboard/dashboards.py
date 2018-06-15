@@ -7,10 +7,10 @@ from django.utils import timezone, timesince
 from controlcenter.widgets.core import WidgetMeta
 
 
-def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    if db_field.name == 'packet':
-        kwargs["queryset"] = Packet.objects.filter(case__status='New').all()
-    return super(CaseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+# def formfield_for_foreignkey(self, db_field, request, **kwargs):
+#     if db_field.name == 'packet':
+#         kwargs["queryset"] = Packet.objects.filter(case__status='New').all()
+#     return super(CaseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 # class CaseInline(admin.StackedInline):
@@ -20,135 +20,89 @@ def formfield_for_foreignkey(self, db_field, request, **kwargs):
 #     fields = ('title',)
 #     readonly_fields = ('title',)
 
+STATUS_CHOICES = (
+    ('N', 'New'),
+    ('P', 'In Progress'),
+    ('C', 'Complete')
+)
 
-class PacketAdmin(widgets.ItemList):
+
+class PacketAllAdmin(widgets.ItemList):
     model = Packet
+    title = 'All Packets'
+    list_display = ('title', 'summary', 'assignedUser', 'created_date', 'mod_date')
+
+
+class PacketAssignedAdmin(widgets.ItemList):
+    model = Packet
+    title = 'Assigned'
+    list_display = ('title', 'summary', 'assignedUser', 'created_date', 'mod_date')
+    queryset = model.objects.filter(assignedUser__isnull=False)
+
+
+class PacketUnassignedAdmin(widgets.ItemList):
+    model = Packet
+    title = 'Unassigned'
     list_display = ('title', 'summary', 'created_date', 'mod_date')
+    queryset = model.objects.filter(assignedUser__isnull=True)
 
 
-class CaseAdmin(widgets.ItemList):
+class CaseNewAdmin(widgets.ItemList):
     model = Case
-    list_display = ('title', 'file1', 'file2', 'packet', 'status', 'created_date', 'mod_date')
+    title = 'New Cases'
+    list_display = ('title', 'file1', 'file2', 'packet', 'created_date', 'mod_date')
     list_editable = ('packet',)
-    
-    
-class LatestCasesWidget(widgets.ItemList):
-    # Displays latest 20 Cases in the the status
-    title = 'Ciao latest Cases'
+    queryset = model.objects.filter(status='N')
+
+
+class CaseInProgressAdmin(widgets.ItemList):
     model = Case
-    queryset = (model.objects
-                     .select_related('packet')
-                     .filter(created_date__gte=timezone.now().date(),
-                             status='New'))
-                     # .Case_by('pk'))
-    # This is the magic
-    list_display = [app_settings.SHARP, 'pk', 'packet', 'ago']
-
-    # If list_display_links is not defined, first column to be linked
-    list_display_links = ['pk']
-
-    # Makes list sortable
-    sortable = True
-
-    # Shows last 20
-    limit_to = 20
-
-    # Display time since instead of date.__str__
-    def ago(self, obj):
-        return timesince(obj.created_date)
-    
-    
-STATUS = [
-    'New',
-    'In Progress',
-    'Complete',
-]
-
-# Metaclass arguments are: class name, base, properties.
-latest_cases_widget = [WidgetMeta(
-                           '{}LatestCases'.format(name),
-                           (LatestCasesWidget,),
-                           {'queryset': (LatestCasesWidget
-                                            .queryset
-                                            .filter(status=name)),
-                            'title': name + ' cases',
-                            'changelist_url': (
-                                 Case, {'status__name__exact': name})})
-                        for name in STATUS]
+    title = 'In Progress'
+    list_display = ('title', 'file1', 'file2', 'packet', 'created_date', 'mod_date')
+    list_editable = ('packet',)
+    queryset = model.objects.filter(status='P')
 
 
-class CaseLineChart(widgets.LineChart):
-    # Displays Cases dynamic for last 7 days
-    title = 'Cases this week'
+class CaseCompleteAdmin(widgets.ItemList):
     model = Case
-    limit_to = 7
-    # Lets make it bigger
-    width = widgets.LARGER
+    title = 'Complete'
+    list_display = ('title', 'file1', 'file2', 'packet', 'created_date', 'mod_date')
+    list_editable = ('packet',)
+    queryset = model.objects.filter(status='C')
+
+
+class CaseStatusSingleBarChart(widgets.SingleBarChart):
+    # Displays score of each restaurant.
+    title = 'Metrics'
+    model = Case
 
     class Chartist:
-        # Visual tuning
         options = {
-            'axisX': {
-                'labelOffset': {
-                    'x': -24,
-                    'y': 0
-                },
-            },
+            # Displays only integer values on y-axis
+            'onlyInteger': True,
+            # Visual tuning
             'chartPadding': {
                 'top': 24,
-                'right': 24,
+                'right': 0,
+                'bottom': 0,
+                'left': 0,
             }
         }
 
     def legend(self):
-        # Displays status names in legend
-        return STATUS
-
-    def labels(self):
-        # Days on x-axis
-        today = timezone.now().date()
-        labels = [(today - datetime.timedelta(days=x)).strftime('%d.%m')
-                  for x in range(self.limit_to)]
-        return labels
-
-    def series(self):
-        # Some dates might not exist in database (no Cases are made that
-        # day), makes sure the chart will get valid values.
-        series = []
-        for status in self.legend:
-            # Sets zero if date not found
-            item = self.values.get(status, {})
-            series.append([item.get(label, 0) for label in self.labels])
-        return series
+        # Duplicates series in legend, because Chartist.js
+        # doesn't display values on bars
+        return self.series
 
     def values(self):
-        # Increases limit_to by multiplying it on restautant quantity
-        limit_to = self.limit_to * len(self.legend)
+        # Returns pairs of restaurant names and order count.
         queryset = self.get_queryset()
-        # This is how `GROUP BY` can be made in django by two fields:
-        # status name and date.
-        # Caseed.created is datetime type but we need to group by days,
-        # here we use `DATE` function (sqlite3) to convert values to
-        # date type.
-        # We have to sort by the same field or it won't work
-        # with django ORM.
-        queryset = (queryset.extra({'baked':
-                                        'DATE(created_date)'})
-                        .select_related('status')
-                        .values_list('status__name', 'baked')
-                        .Case_by('-baked')
-                        .annotate(ocount=Count('pk'))[:limit_to])
-
-        # The key is status name and the value is a dictionary of
-        # date:Case_count pair.
-        values = defaultdict(dict)
-        for status, date, count in queryset:
-            # `DATE` returns `YYYY-MM-DD` string.
-            # But we want `DD-MM`
-            day_month = '{2}.{1}'.format(*date.split('-'))
-            values[status][day_month] = count
-        return values
+        return (queryset.values_list('status')
+                        .annotate(number=Count('status'))
+                        .order_by('status')[:self.limit_to])
 
 
 class MyDashboard(Dashboard):
-    widgets = (PacketAdmin, CaseAdmin, LatestCasesWidget, CaseLineChart)
+    widgets = (widgets.Group([PacketAllAdmin, PacketAssignedAdmin, PacketUnassignedAdmin]),
+               widgets.Group([CaseNewAdmin, CaseInProgressAdmin, CaseCompleteAdmin]),
+               CaseStatusSingleBarChart)

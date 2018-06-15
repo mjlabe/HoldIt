@@ -1,8 +1,9 @@
-from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from ..models.models import Packet
 from ..forms import PacketForm
-
+from django.contrib.auth.decorators import user_passes_test
+from django.utils.decorators import method_decorator
+from .views_user import CaseView
 
 def is_worker(user):
     return user.groups.filter(name='Worker').exists() | user.groups.filter(name='Admin').exists()
@@ -66,3 +67,15 @@ def packet_edit(request, pk):
         packet_form = PacketForm(instance=packet)
 
     return render(request, "worker/packet_edit.html", {'packet_form': packet_form})
+
+
+# class CaseEditView(CaseView):
+#     """Display Case details.
+#
+#     This class can be used by specific case types to inherit Case details."""
+#     @method_decorator(user_passes_test(is_worker))
+#     def dispatch(self, request, *args, **kwargs):
+#         """Display the detailed view for a Report"""
+#
+#         case = get_object_or_404(Case, pk=kwargs['pk'])
+#         return render(request, 'user/report_detail.html', {'case': case})

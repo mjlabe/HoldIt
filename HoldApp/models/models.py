@@ -13,6 +13,14 @@ class DateCreateModMixin(models.Model):
     mod_date = models.DateTimeField(blank=True, null=True)
 
 
+class StatusDateMixin(models.Model):
+    class Meta:
+        abstract = True
+
+    date_in_progress = models.DateTimeField(blank=True, null=True)
+    date_complete = models.DateTimeField(blank=True, null=True)
+
+
 class Packet(DateCreateModMixin):
     """This model common to every type of device. It includes common things like, title, summary, device type, etc."""
     title = models.CharField(max_length=100)
@@ -23,7 +31,7 @@ class Packet(DateCreateModMixin):
         return self.title
 
 
-class Case(DateCreateModMixin):
+class Case(DateCreateModMixin, StatusDateMixin):
     """This model common to every type of device. It includes common things like, title, summary, device type, etc."""
     title = models.CharField(max_length=100)
     summary = models.TextField(max_length=100000, blank=True, null=True)
@@ -42,6 +50,13 @@ class Case(DateCreateModMixin):
         ('C', 'CType')
     )
     type = models.CharField(max_length=1, choices=TYPE_CHOICES, null=True, blank=True)
+    LEVEL_CHOICES = (
+        ('0', 'Match'),
+        ('1', 'Easy'),
+        ('2', 'Medium'),
+        ('3', 'Difficult')
+    )
+    level = models.CharField(max_length=1, choices=LEVEL_CHOICES, default='3')
 
     def __str__(self):
         return self.title
