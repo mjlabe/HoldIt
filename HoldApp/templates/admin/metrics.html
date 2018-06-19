@@ -24,21 +24,66 @@
       .gm-style img { max-width: none; }</style><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/onion.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/controls.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/stats.js.download' %}></script></head><body id="myPage">
 
 <!-- Contact Container -->
-{#TODO: this neeeds to be changes from a constant height#}
-<script type="text/javascript" src={% static 'googleCharts/jsapi' %}></script>
-<script type="text/javascript" src={%  static 'googleCharts/loader.js' %}></script>
+<!-- Load c3.css -->
+<link href={%  static 'c3-0.6.2/c3.css' %} rel="stylesheet">
+    <h1 style="padding-top: 50px">Metrics</h1>
+    <div id="chart"></div>
+<!-- Load d3.js and c3.js -->
+<script src={%  static 'd3/d3.min.js' %} charset="utf-8"></script>
+<script src={%  static 'c3-0.6.2/c3.js' %}></script>
 <script type="text/javascript">
-          var options = {
-        width: 600,
-        height: 400,
-        legend: { position: 'top', maxLines: 3 },
-        bar: { groupWidth: '75%' },
-        isStacked: true
-      };
+{#    {{ chart_metric.as_html }}#}
+data_metrics = {{ data|safe }};
+chart_group = [];
+var chart = c3.generate({
+    data: {
+        x: 'Month',
+        columns: data_metrics ,
+        type: 'bar',
+         onclick: function() { alternate(); }
+    },
+    grid: {
+        y: {
+            lines: [{value:0}]
+        }
+    },
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%b-%Y'
+            }
+        }
+    }
+});
 
-    google.load("visualization", "1", {packages:["corechart"]});
+setTimeout(function () {
+    data_metrics.forEach(function(entry) {
+        chart_group.push(entry[0]);
+    });
+    chart.groups([chart_group])
+}, 1000);
+
+var mode = 0;
+
+function alternate(){
+
+    if (mode == 0)
+    {
+        chart.groups([[]]);
+        mode = 1;
+    }
+
+    else
+    {
+        chart.groups([chart_group]);
+        mode = 0;
+    }
+
+}
+
 </script>
 
-{{ chart.as_html }}
+{#{{ chart.as_html }}#}
 
 {% endblock %}

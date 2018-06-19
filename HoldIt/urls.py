@@ -24,3 +24,6 @@ urlpatterns = [
     url(r'', include('HoldApp.urls')),
     path('admin/dashboard/', controlcenter.urls),
 ]
+
+admin.site.index_template = 'admin/index.html'
+admin.autodiscover()

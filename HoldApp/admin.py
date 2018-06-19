@@ -25,7 +25,6 @@ class PacketAdmin(admin.ModelAdmin):
     search_fields = ('title', 'summary',)
 
 
-
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
     list_display = ('title', 'file1', 'file2', 'packet', 'status', 'created_date', 'mod_date')
