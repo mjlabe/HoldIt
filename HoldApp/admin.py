@@ -27,7 +27,8 @@ class PacketAdmin(admin.ModelAdmin):
 
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ('title', 'file1', 'file2', 'packet', 'status', 'created_date', 'mod_date')
-    list_filter = ('status', 'created_date', 'mod_date')
+    list_display = ('title', 'file1', 'file2', 'packet', 'status', 'created_date', 'date_in_progress', 'date_complete',
+                    'mod_date')
+    list_filter = ('status', 'created_date', 'mod_date', 'date_in_progress', 'date_complete')
     list_editable = ('packet',)
     search_fields = ('title', 'summary', 'status',)

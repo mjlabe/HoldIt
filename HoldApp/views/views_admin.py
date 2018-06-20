@@ -4,105 +4,98 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from ..models.models import Case
 from django.utils.timezone import datetime, timedelta
+from django.db.models import Q
+import pytz
+
 
 def is_admin(user):
     return user.groups.filter(name='Admin').exists()
 
 
-def date_filter_queryset(queue_queryset, date_queryset, start, end):
-    # get number of items in queue before end date
-    queue_count = queue_queryset.filter(created_date__lt=end).count()
+def date_filter_queryset(start, end):
+    # get all cases before the start date that are NOT COMPLETE
+    past_queue_queryset = Case.objects.exclude(status='C').filter(created_date__lt=start).all()
 
-    # get total number of new cases in date range
-    new_count = date_queryset.filter(created_date__range=[start,end]).count()
+    # Get COUNT of all cases before start date range that are NEW
+    past_queue_count = past_queue_queryset.filter(status='N').all().count()
 
-    # get number of "In Progress" cases
-    nInProgressCases = queue_queryset.filter(status='P').count()
+    # Get COUNT of all cases before start date range that are IN PROGRESS
+    past_in_progress_count = past_queue_queryset.filter(status='P').all().count()
 
-    # get number of cases completed in range
-    nCompleteCases = Case.objects.filter(status='C', mod_date__range=[start, end]).all().count()
+    # get all NEW cases in date range
+    range_queryset = Case.objects.filter(created_date__range=[start, end]).all()
+
+    data = [
+        ['Date'], ['Queue'], ['New'], ['In Progress'], ['Complete'],
+    ]
+
+    # loop through each month in the range
+    for m in range(start.month, end.month):
+        # set range to one month
+        start = start.replace(day=1, month=m)
+        end = start.replace(day=1, month=m + 1)
+
+        # add date as column header
+        data[0].append(str(start.date()))
+
+        # QUEUE
+        # get number of cases that were !complete or !in progress in the month and
+        data[1].append(range_queryset.filter(Q(created_date__lt=end) &
+                                             ((Q(date_complete__lt=start) & Q(date_in_progress__lt=start)) |
+                                              (Q(date_complete__isnull=True) & Q(date_in_progress__isnull=True)))) \
+                       .all().count() + past_queue_count)
+
+        # NEW
+        # get number of cases added in the month
+        data[2].append(range_queryset.filter(created_date__range=[start, end]).all().count())
+
+        # IN PROGRESS
+        # get number of "In Progress" cases in queue in the month
+        data[3].append(range_queryset.filter(date_in_progress__range=[start, end]).count() + past_in_progress_count)
+
+        # COMPLETE
+        # get number of cases completed in the month
+        data[4].append(range_queryset.filter(status='C', date_complete__range=[start, end]).all().count())
+
+    return data
 
 
 @user_passes_test(is_admin)
 def metrics(request):
-    # if change in start and end date
-    if request.method == "POST":
-        #do stuff
-        # current_date_time = datetime.now()
-        # start = current_date_time - timedelta(calendar.month)
-        # end = datetime.now()
-        return render(request, 'admin/metrics.html')
+
+    error = {'start': '', 'end': ''}
 
     # default start and end date, first hit
-    else:
-        current_date_time = datetime.now()
-        start = current_date_time.replace(day=1, month=current_date_time.month-2, hour=0, minute=0, second=0,
-                                          microsecond=0)
-        end = current_date_time.replace(day=1, month=current_date_time.month+1, hour=0, minute=0, second=0,
-                                        microsecond=0)
 
-        # get number of cases before the start date that are still not complete
-        old_queue_queryset = Case.objects.exclude(status='C').filter(created_date__lt=start).all().count()
+    current_date_time = datetime.now()
+    start = current_date_time.replace(day=1, month=current_date_time.month - 2, hour=0, minute=0, second=0,
+                                      microsecond=0, tzinfo=pytz.UTC)
+    end = current_date_time.replace(day=1, month=current_date_time.month + 1, hour=0, minute=0, second=0,
+                                    microsecond=0, tzinfo=pytz.UTC)
 
-        # get all cases that were not complete in the date range
-        queue_queryset = Case.objects.exclude(status='C').filter(created_date__lt=end).all()
+    context = {'data': date_filter_queryset(start, end), 'start': start.strftime("%Y-%m-%d"),
+               'end': end.strftime("%Y-%m-%d"), 'error': error}
 
-        # get all cases in date range
-        new_queryset = Case.objects.filter(created_date__range=[start, end]).all()
+    # if change in start and end date
+    if request.method == "POST":
 
-        data = [
-            ['Month'], ['Queue'], ['New'], ['In Progress'], ['Complete'],
-        ]
+        start = datetime.strptime(request.POST.get('start', ''), '%Y-%m-%d').replace(tzinfo=pytz.UTC)
+        end = datetime.strptime(request.POST.get('end', ''), '%Y-%m-%d').replace(tzinfo=pytz.UTC)
 
-        # data = []
-        queue_count = []
-        new_count = []
-        n_queued_in_progress_cases =[]
-        n_complete_cases = []
+        if start < end:
 
-        # loop through each month in the range
-        for m in range(start.month, end.month):
+            # TODO: load same data as before invalid POST
+            # TODO: doesn't work before january because I'm looping just by month #
 
-            start = start.replace(month=m)
-            end = start.replace(month=m+1)
+            error['start'] = ''
+            error['end'] = ''
 
-            data[0].append(str(start.date()))
+            context = {'data': date_filter_queryset(start, end), 'start': start.strftime("%Y-%m-%d"),
+                       'end': end.strftime("%Y-%m-%d")}
+            return render(request, 'admin/metrics.html', context)
 
-            # get number of cases that were !complete or !in progress in the month
-            data[1].append(queue_queryset.filter(date_complete__lt=end, date_in_progress__lt=end).all().count()+old_queue_queryset)
+        else:
 
-            # get number of cases added in the month
-            data[2].append(new_queryset.filter(created_date__range=[start, end]).all().count())
+            error['end'] = "ERROR: End Date must come after Start Date"
 
-            # get number of "In Progress" cases in queue in the month
-            data[3].append(queue_queryset.filter(date_in_progress__range=[start, end]).count())
-
-            # get number of cases completed in the month
-            # TODO: fix repeated query
-            data[4].append(Case.objects.filter(status='C', date_complete__range=[start, end]).all().count())
-
-            # data_month = [str(start), queue_count, new_count, n_queued_in_progress_cases, n_complete_cases]
-            #
-            # data.append(data_month)
-
-        # data = SimpleDataSource(data=data)
-        # chart_metric = ColumnChart(data)  # options={'isStacked': True}
-        # context = {'chart_metric': chart_metric}
-        context = {'data': data}
-        return render(request, 'admin/metrics.html', context)
-
-    # data = [
-    #     ['Year', 'Sales', 'Expenses'],
-    #     [2004, 1000, 400],
-    #     [2005, 1170, 460],
-    #     [2006, 660, 1120],
-    #     [2007, 1030, 540]
-    # ]
-    # # DataSource object
-    # data_source = SimpleDataSource(data=data)
-    # # Chart object
-    # chart = LineChart(data_source)
-    # context = {'chart': chart}
-    # return render(request, 'admin/metrics.html', context)
-
-
+    return render(request, 'admin/metrics.html', context)

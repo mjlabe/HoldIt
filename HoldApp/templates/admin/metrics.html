@@ -21,25 +21,55 @@
         font: 400 11px Roboto, Arial, sans-serif;
         text-decoration: none;
       }
-      .gm-style img { max-width: none; }</style><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/onion.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/controls.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/stats.js.download' %}></script></head><body id="myPage">
+      .gm-style img { max-width: none; }</style><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/onion.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/controls.js.download' %}> </script><script type="text/javascript" charset="UTF-8" src={%  static 'W3.CSS Template_files/stats.js.download' %}></script></head>
 
-<!-- Contact Container -->
+<h1 style="padding-top: 50px">Metrics</h1>
+
+<script type="text/javascript">
+    var datefield=document.createElement("input");
+    datefield.setAttribute("type", "date");
+    if (datefield.type!="date"){ //if browser doesn't support input type="date", load files for jQuery UI Date Picker
+        document.write('<link href={% static 'googleAPI/jquery-ui.css' %} rel="stylesheet" type="text/css" />\n');
+        document.write('<script src={% static 'googleAPI/jquery.min.js' %}><\/script>\n');
+        document.write('<script src={% static 'googleAPI/jquery-ui.min.js' %}><\/script>\n');
+    }
+</script>
+
+<script>
+if (datefield.type!="date"){ //if browser doesn't support input type="date", initialize date picker widget:
+    jQuery(function($){ //on document.ready
+        $('#birthday').datepicker();
+    })
+}
+</script>
+
+<form method="post">
+  {% csrf_token %}
+
+    Start:<input type="date" id="start" name="start" size="20" value="{{ start }}" />
+    End:<input type="date" id="end" name="end" size="20" value="{{ end }}" />
+    <button type="submit" class="w3-button w3-theme">Submit</button>
+    <div><p class="w3-red"> {{ error.end }} </p></div>
+</form>
+
 <!-- Load c3.css -->
 <link href={%  static 'c3-0.6.2/c3.css' %} rel="stylesheet">
-    <h1 style="padding-top: 50px">Metrics</h1>
+
     <div id="chart"></div>
+
 <!-- Load d3.js and c3.js -->
 <script src={%  static 'd3/d3.min.js' %} charset="utf-8"></script>
 <script src={%  static 'c3-0.6.2/c3.js' %}></script>
 <script type="text/javascript">
-{#    {{ chart_metric.as_html }}#}
+
 data_metrics = {{ data|safe }};
 chart_group = [];
 var chart = c3.generate({
     data: {
-        x: 'Month',
+        x: 'Date',
         columns: data_metrics ,
         type: 'bar',
+        order: 'null',
          onclick: function() { alternate(); }
     },
     grid: {
@@ -58,9 +88,11 @@ var chart = c3.generate({
 });
 
 setTimeout(function () {
-    data_metrics.forEach(function(entry) {
-        chart_group.push(entry[0]);
-    });
+    for (var i = 1; i < data_metrics.length; i++){
+        chart_group.push(data_metrics[i][0]);
+    }
+
+    console.log(chart_group);
     chart.groups([chart_group])
 }, 1000);
 
@@ -83,6 +115,7 @@ function alternate(){
 }
 
 </script>
+
 
 {#{{ chart.as_html }}#}
 
